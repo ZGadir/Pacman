@@ -13,19 +13,24 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 timer = pygame.time.Clock()
 font = pygame.font.Font('freesansbold.ttf', 20)
 
-# Tile Types (Comment descriptions based on your legend)
-tiles = {
-    0: (BLACK, None),          # Empty space
-    1: (BLACK, 'dot'),         # Small dot
-    2: (BLACK, 'big_dot'),     # Power pellet
-    3: (WHITE, None),          # Vertical wall
-    4: (WHITE, None),          # Horizontal wall
-    5: (WHITE, None),          # Top right corner wall
-    6: (WHITE, None),          # Top left corner wall
-    7: (WHITE, None),          # Bottom left corner wall
-    8: (WHITE, None),          # Bottom right corner wall
-    9: (BLUE, None)            # Gate (no entry for ghosts)
+
+FPS = 60
+TILE_SIZE = 25
+player_x, player_y = 450, 663
+score, lives, powerup = 0, 3, False
+game_over, game_won = False, False
+
+# Load Player and Ghost Images
+player_images = [pygame.transform.scale(pygame.image.load(f'assets/player_images/{i}.png'), (45, 45)) for i in range(1, 5)]
+ghost_images = {
+    'blinky': pygame.transform.scale(pygame.image.load('assets/ghost_images/red.png'), (45, 45)),
+    'pinky': pygame.transform.scale(pygame.image.load('assets/ghost_images/pink.png'), (45, 45)),
+    'inky': pygame.transform.scale(pygame.image.load('assets/ghost_images/blue.png'), (45, 45)),
+    'clyde': pygame.transform.scale(pygame.image.load('assets/ghost_images/orange.png'), (45, 45)),
+    'spooked': pygame.transform.scale(pygame.image.load('assets/ghost_images/powerup.png'), (45, 45)),
+    'dead': pygame.transform.scale(pygame.image.load('assets/ghost_images/dead.png'), (45, 45))
 }
+
 
 boards = [
     [6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
