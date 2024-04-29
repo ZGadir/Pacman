@@ -40,6 +40,12 @@ for i in range(1, 5):
     image_path = os.path.join(player_images_dir, f'{i}.png')
     player_images.append(pygame.transform.scale(pygame.image.load(image_path), (45, 45)))
 
+ghost_images_dir = os.path.join('C:\\Users\\User\\Desktop\\pacman\\assets\\ghost_images')
+blinky = Ghost(100, 100, ghost_images['blinky'])  # Example coordinates
+ghosts = [blinky]  # Add more as needed
+
+
+
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 timer = pygame.time.Clock()
@@ -126,19 +132,72 @@ def draw_player():
     elif direction == 3:
         screen.blit(pygame.transform.rotate(player_images[counter // 5], 270), (player_x, player_y))
 
+def can_move_to(x, y):
+    # Convert pixel coordinates to grid indices
+    grid_x, grid_y = x // TILE_SIZE, y // TILE_SIZE
+    if level[grid_y][grid_x] != 0:  # Assuming 0 is a wall
+        return True
+    return False
+
+def move_player(play_x, play_y, direction):
+    if direction == 0 and can_move_to(play_x + player_speed, play_y):  # Right
+        play_x += player_speed
+    elif direction == 1 and can_move_to(play_x - player_speed, play_y):  # Left
+        play_x -= player_speed
+    elif direction == 2 and can_move_to(play_x, play_y - player_speed):  # Up
+        play_y -= player_speed
+    elif direction == 3 and can_move_to(play_x, play_y + player_speed):  # Down
+        play_y += player_speed
+    return play_x, play_y
+
+class Ghost:
+    def __init__(self, x, y, image):
+        self.x = x
+        self.y = y
+        self.image = image
+        self.direction = random.randint(0, 3)  # Directions 0-3 corresponding to R, L, U, D
+
+    def move(self):
+        directions = [0, 1, 2, 3]
+        random.shuffle(directions)  # Shuffle directions to randomize movement order
+        for dir in directions:
+            next_x, next_y = self.x, self.y
+            if dir == 0:
+                next_x += TILE_SIZE
+            elif dir == 1:
+                next_x -= TILE_SIZE
+            elif dir == 2:
+                next_y -= TILE_SIZE
+            elif dir == 3:
+                next_y += TILE_SIZE
+
+            if can_move_to(next_x, next_y):
+                self.x, self.y = next_x, next_y
+                break
+
+    def draw(self, screen):
+        screen.blit(self.image, (self.x, self.y))
 
 
-#ghost_images = {
-#    'blinky': pygame.transform.scale(pygame.image.load('assets/ghost_img/red.png'), (45, 45)),
-#    'pinky': pygame.transform.scale(pygame.image.load('assets/ghost_img/pink.png'), (45, 45)),
-#    'inky': pygame.transform.scale(pygame.image.load('assets/ghost_img/blue.png'), (45, 45)),
-#    'clyde': pygame.transform.scale(pygame.image.load('assets/ghost_img/orange.png'), (45, 45)),
-#    'spooked': pygame.transform.scale(pygame.image.load('assets/ghost_img/spooked.png'), (45, 45)),
-#    'dead': pygame.transform.scale(pygame.image.load('assets/ghost_img/dead.png'), (45, 45))
-#}
-            
+player_x, player_y = move_player(player_x, player_y, direction)
+
+for ghost in ghosts:
+    ghost.move()
+
+# Rendering
+screen.fill(BLACK)
+for ghost in ghosts:
+    ghost.draw(screen)
+pygame.display.flip()
 
 
+
+
+# Then, in your main loop where you check for KEYDOWN events:
+if event.type == pygame.KEYDOWN:
+    if event.key == pygame.K_RIGHT and can_move_to(player_x + TILE_SIZE, player_y):
+        player_x += TILE_SIZE
+    # And so on for K_LEFT, K_UP, K_DOWN
 
 # Main game loop
 run = True
@@ -146,10 +205,6 @@ while run:
     timer.tick(FPS)  # Use FPS instead of fps
     screen.fill(BLACK)  # Use BLACK instead of black
     draw_board()
-    
-
-
-
     draw_player()
     if counter < 19:
         counter += 1
