@@ -2,6 +2,7 @@ import sys
 import copy
 import pygame
 import math
+import os
 
 # Constants
 WIDTH, HEIGHT = 900, 950
@@ -28,12 +29,22 @@ ghost_speeds = [2, 2, 2, 2]
 startup_counter = 0
 tile_height = (HEIGHT - 50) // 32
 tile_width = WIDTH // 30
+player_x = 450
+player_y = 663
+direction = 0
+counter = 0
+
+player_images_dir = os.path.join('C:\\Users\\User\\Desktop\\pacman\\assets\\player_images')
+player_images = []
+for i in range(1, 5):
+    image_path = os.path.join(player_images_dir, f'{i}.png')
+    player_images.append(pygame.transform.scale(pygame.image.load(image_path), (45, 45)))
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 timer = pygame.time.Clock()
 font = pygame.font.Font('freesansbold.ttf', 20)
-    
+
 boards = [
     [6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
     [3, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 3],
@@ -104,6 +115,18 @@ def draw_board():
                 pygame.draw.line(screen, 'white', (j * num2, i * num1 + (0.5 * num1)),
                                  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
     
+def draw_player():
+    # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
+    if direction == 0:
+        screen.blit(player_images[counter // 5], (player_x, player_y))
+    elif direction == 1:
+        screen.blit(pygame.transform.flip(player_images[counter // 5], True, False), (player_x, player_y))
+    elif direction == 2:
+        screen.blit(pygame.transform.rotate(player_images[counter // 5], 90), (player_x, player_y))
+    elif direction == 3:
+        screen.blit(pygame.transform.rotate(player_images[counter // 5], 270), (player_x, player_y))
+
+
 
 #ghost_images = {
 #    'blinky': pygame.transform.scale(pygame.image.load('assets/ghost_img/red.png'), (45, 45)),
@@ -117,18 +140,55 @@ def draw_board():
 
 
 
-def main():
-    global game_over
-    while not game_over:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                game_over = True
-        screen.fill(BLACK)
-        draw_board()
-        pygame.display.update()
-        timer.tick(FPS)
+# Main game loop
+run = True
+while run:
+    timer.tick(FPS)  # Use FPS instead of fps
+    screen.fill(BLACK)  # Use BLACK instead of black
+    draw_board()
+    
 
-    pygame.quit()
 
-if __name__ == "__main__":
-    main()
+
+    draw_player()
+    if counter < 19:
+        counter += 1
+        if counter > 3:
+            flicker = False
+    else:
+        counter = 0
+        flicker = True
+    if powerup and power_counter < 600:
+        power_counter += 1
+    elif powerup and power_counter >= 600:
+        power_counter = 0
+        powerup = False
+        eaten_ghost = [False, False, False, False]
+    if startup_counter < 180 and not game_over and not game_won:
+        moving = False
+        startup_counter += 1
+    else:
+        moving = True
+
+    
+
+    # Event handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                direction_command = 0
+            if event.key == pygame.K_LEFT:
+                direction_command = 1
+            if event.key == pygame.K_UP:
+                direction_command = 2
+            if event.key == pygame.K_DOWN:
+                direction_command = 3
+
+    # Refresh the display
+    pygame.display.flip()  # You can also use pygame.display.update()
+
+# Quit the game
+pygame.quit()
+sys.exit()  # It's a good practice t
