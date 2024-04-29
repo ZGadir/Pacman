@@ -38,11 +38,12 @@ timer = pygame.time.Clock()
 font = pygame.font.Font('freesansbold.ttf', 20)
 
 # Load player images
+
 player_images_dir = os.path.join('C:\\Users\\User\\Desktop\\pacman\\assets\\player_images')
 player_images = []
 for i in range(1, 5):
     image_path = os.path.join(player_images_dir, f'{i}.png')
-    player_images.append(pygame.transform.scale(pygame.image.load(image_path), (45, 45)))
+    player_images.append(pygame.transform.scale(pygame.image.load(image_path), (35, 35)))
 
 def check_position(centerx, centery, level, direction):
     turns = [False, False, False, False]  # Right, Left, Up, Down
@@ -119,12 +120,7 @@ def draw_board():
             if level[i][j] == 3:
                 pygame.draw.line(screen, color, (j * num2 + (0.5 * num2), i * num1),
                                  (j * num2 + (0.5 * num2), i * num1 + num1), 3)
-            if level[i][j] == 4:
-                pygame.draw.line(screen, color, (j * num2, i * num1 + (0.5 * num1)),
-                                 (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
-            if level[i][j] == 5:
-                pygame.draw.arc(screen, color, [(j * num2 - (num2 * 0.4)) - 2, (i * num1 + (0.5 * num1)), num2, num1],
-                                0, PI / 2, 3)
+            
             if level[i][j] == 6:
                 pygame.draw.arc(screen, color,
                                 [(j * num2 + (num2 * 0.5)), (i * num1 + (0.5 * num1)), num2, num1], PI / 2, PI, 3)
