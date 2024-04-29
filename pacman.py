@@ -33,6 +33,16 @@ player_x = 450
 player_y = 663
 direction = 0
 counter = 0
+turns_allowed = [False, False, False, False]
+direction_command = 0
+player_speed = 2
+
+
+turns_allowed = check_position(center_x, center_y)
+center_x = player_x + 23
+center_y = player_y + 24
+    
+
 
 player_images_dir = os.path.join('C:\\Users\\User\\Desktop\\pacman\\assets\\player_images')
 player_images = []
@@ -120,85 +130,9 @@ def draw_player():
     elif direction == 3:
         screen.blit(pygame.transform.rotate(player_images[counter // 5], 270), (player_x, player_y))
 
-# Define the size of the collision box
-COLLISION_BOX_SIZE = 20
 
 
 
-def check_collisions(self):
-        num1 = ((HEIGHT - 50) // 32)
-        num2 = (WIDTH // 30)
-        num3 = 15
-        self.turns = [False, False, False, False]
-        if 0 < self.x // 30 < 29:
-            if level[(self.y - num3) // num1][self.x // num2] == 9:
-                self.turns[2] = True
-            if level[self.y // num1][(self.x - num3) // num2] < 3 \
-                    or (level[self.y // num1][(self.x - num3) // num2] == 9 and (
-                    self.in_box or self.dead)):
-                self.turns[1] = True
-            if level[self.y // num1][(self.x + num3) // num2] < 3 \
-                    or (level[self.y // num1][(self.x + num3) // num2] == 9 and (
-                    self.in_box or self.dead)):
-                self.turns[0] = True
-            if level[(self.y + num3) // num1][self.x // num2] < 3 \
-                    or (level[(self.y + num3) // num1][self.x // num2] == 9 and (
-                    self.in_box or self.dead)):
-                self.turns[3] = True
-            if level[(self.y - num3) // num1][self.x // num2] < 3 \
-                    or (level[(self.y - num3) // num1][self.x // num2] == 9 and (
-                    self.in_box or self.dead)):
-                self.turns[2] = True
-
-            if self.direction == 2 or self.direction == 3:
-                if 12 <= self.x % num2 <= 18:
-                    if level[(self.y + num3) // num1][self.x // num2] < 3 \
-                            or (level[(self.y + num3) // num1][self.x // num2] == 9 and (
-                            self.in_box or self.dead)):
-                        self.turns[3] = True
-                    if level[(self.y - num3) // num1][self.x // num2] < 3 \
-                            or (level[(self.y - num3) // num1][self.x // num2] == 9 and (
-                            self.in_box or self.dead)):
-                        self.turns[2] = True
-                if 12 <= self.y % num1 <= 18:
-                    if level[self.y // num1][(self.x - num2) // num2] < 3 \
-                            or (level[self.y // num1][(self.x - num2) // num2] == 9 and (
-                            self.in_box or self.dead)):
-                        self.turns[1] = True
-                    if level[self.y // num1][(self.x + num2) // num2] < 3 \
-                            or (level[self.y // num1][(self.x + num2) // num2] == 9 and (
-                            self.in_box or self.dead)):
-                        self.turns[0] = True
-
-            if self.direction == 0 or self.direction == 1:
-                if 12 <= self.x % num2 <= 18:
-                    if level[(self.y + num3) // num1][self.x // num2] < 3 \
-                            or (level[(self.y + num3) // num1][self.x // num2] == 9 and (
-                            self.in_box or self.dead)):
-                        self.turns[3] = True
-                    if level[(self.y - num3) // num1][self.x // num2] < 3 \
-                            or (level[(self.y - num3) // num1][self.x // num2] == 9 and (
-                            self.in_box or self.dead)):
-                        self.turns[2] = True
-                if 12 <= self.y % num1 <= 18:
-                    if level[self.y // num1][(self.x - num3) // num2] < 3 \
-                            or (level[self.y // num1][(self.x - num3) // num2] == 9 and (
-                            self.in_box or self.dead)):
-                        self.turns[1] = True
-                    if level[self.y // num1][(self.x + num3) // num2] < 3 \
-                            or (level[self.y // num1][(self.x + num3) // num2] == 9 and (
-                            self.in_box or self.dead)):
-                        self.turns[0] = True
-        else:
-            self.turns[0] = True
-            self.turns[1] = True
-        if 350 < self.x < 550 and 370 < self.y < 480:
-            self.in_box = True
-        else:
-            self.in_box = False
-        return self.turns, self.in_box
-
-pacman = Pacman(player_x, player_y, BLUE)
 
 # Modify the movement code to include collision detection
 if moving:
