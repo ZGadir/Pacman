@@ -13,7 +13,6 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 timer = pygame.time.Clock()
 font = pygame.font.Font('freesansbold.ttf', 20)
 
-
 FPS = 60
 TILE_SIZE = 25
 player_x, player_y = 450, 663
@@ -23,14 +22,27 @@ game_over, game_won = False, False
 # Load Player and Ghost Images
 player_images = [pygame.transform.scale(pygame.image.load(f'assets/player_images/{i}.png'), (45, 45)) for i in range(1, 5)]
 ghost_images = {
-    'blinky': pygame.transform.scale(pygame.image.load('assets/ghost_images/red.png'), (45, 45)),
-    'pinky': pygame.transform.scale(pygame.image.load('assets/ghost_images/pink.png'), (45, 45)),
-    'inky': pygame.transform.scale(pygame.image.load('assets/ghost_images/blue.png'), (45, 45)),
-    'clyde': pygame.transform.scale(pygame.image.load('assets/ghost_images/orange.png'), (45, 45)),
-    'spooked': pygame.transform.scale(pygame.image.load('assets/ghost_images/powerup.png'), (45, 45)),
-    'dead': pygame.transform.scale(pygame.image.load('assets/ghost_images/dead.png'), (45, 45))
+    'blinky': pygame.transform.scale(pygame.image.load('assets/Ghost_Img/red.png'), (45, 45)),
+    'pinky': pygame.transform.scale(pygame.image.load('assets/Ghost_Img/pink.png'), (45, 45)),
+    'inky': pygame.transform.scale(pygame.image.load('assets/Ghost_Img/blue.png'), (45, 45)),
+    'clyde': pygame.transform.scale(pygame.image.load('assets/Ghost_Img/orange.png'), (45, 45)),
+    'spooked': pygame.transform.scale(pygame.image.load('assets/Ghost_Img/powerup.png'), (45, 45)),
+    'dead': pygame.transform.scale(pygame.image.load('assets/Ghost_Img/dead.png'), (45, 45))
 }
 
+# Load Tile Images
+tile_images = {
+    0: pygame.image.load(os.path.join('pacman_pieces', 'empty.png')),
+    1: pygame.image.load(os.path.join('pacman_pieces', 'dot.png')),
+    2: pygame.image.load(os.path.join('pacman_pieces', 'big_dot.png')),
+    3: pygame.image.load(os.path.join('pacman_pieces', 'vertical.png')),
+    4: pygame.image.load(os.path.join('pacman_pieces', 'horizontal.png')),
+    5: pygame.image.load(os.path.join('pacman_pieces', 'top_right.png')),
+    6: pygame.image.load(os.path.join('pacman_pieces', 'top_left.png')),
+    7: pygame.image.load(os.path.join('pacman_pieces', 'bottom_left.png')),
+    8: pygame.image.load(os.path.join('pacman_pieces', 'bottom_right.png')),
+    9: pygame.image.load(os.path.join('pacman_pieces', 'gate.png'))
+}
 
 boards = [
     [6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
