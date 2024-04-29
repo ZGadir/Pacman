@@ -3,47 +3,37 @@ import copy
 import pygame
 
 # Constants
-SCREEN_WIDTH, SCREEN_HEIGHT = 900, 950
+WIDTH, HEIGHT = 900, 950
 TILE_SIZE = 25
 FPS = 60
-BLACK, YELLOW, WHITE, BLUE = (0, 0, 0), (255, 255, 0), (255, 255, 255), (0, 0, 255)
-
-pygame.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-timer = pygame.time.Clock()
-font = pygame.font.Font('freesansbold.ttf', 20)
-
+color = 'blue'
+BLACK = (0, 0, 0)
 FPS = 60
 TILE_SIZE = 25
 player_x, player_y = 450, 663
 score, lives, powerup = 0, 3, False
 game_over, game_won = False, False
+level = boards
+screen = pygame.display.set_mode([WIDTH, HEIGHT])
+level = copy.deepcopy(boards)
+PI = math.pi
 
-# Load Player and Ghost Images
-player_images = [pygame.transform.scale(pygame.image.load(f'assets/player_images/{i}.png'), (45, 45)) for i in range(1, 5)]
-ghost_images = {
-    'blinky': pygame.transform.scale(pygame.image.load('assets/Ghost_Img/red.png'), (45, 45)),
-    'pinky': pygame.transform.scale(pygame.image.load('assets/Ghost_Img/pink.png'), (45, 45)),
-    'inky': pygame.transform.scale(pygame.image.load('assets/Ghost_Img/blue.png'), (45, 45)),
-    'clyde': pygame.transform.scale(pygame.image.load('assets/Ghost_Img/orange.png'), (45, 45)),
-    'spooked': pygame.transform.scale(pygame.image.load('assets/Ghost_Img/powerup.png'), (45, 45)),
-    'dead': pygame.transform.scale(pygame.image.load('assets/Ghost_Img/dead.png'), (45, 45))
-}
 
-# Load Tile Images
-tile_images = {
-    0: pygame.image.load(os.path.join('pacman_pieces', 'empty.png')),
-    1: pygame.image.load(os.path.join('pacman_pieces', 'dot.png')),
-    2: pygame.image.load(os.path.join('pacman_pieces', 'big_dot.png')),
-    3: pygame.image.load(os.path.join('pacman_pieces', 'vertical.png')),
-    4: pygame.image.load(os.path.join('pacman_pieces', 'horizontal.png')),
-    5: pygame.image.load(os.path.join('pacman_pieces', 'top_right.png')),
-    6: pygame.image.load(os.path.join('pacman_pieces', 'top_left.png')),
-    7: pygame.image.load(os.path.join('pacman_pieces', 'bottom_left.png')),
-    8: pygame.image.load(os.path.join('pacman_pieces', 'bottom_right.png')),
-    9: pygame.image.load(os.path.join('pacman_pieces', 'gate.png'))
-}
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+timer = pygame.time.Clock()
+font = pygame.font.Font('freesansbold.ttf', 20)
 
+#ghost_images = {
+#    'blinky': pygame.transform.scale(pygame.image.load('assets/ghost_img/red.png'), (45, 45)),
+#    'pinky': pygame.transform.scale(pygame.image.load('assets/ghost_img/pink.png'), (45, 45)),
+#    'inky': pygame.transform.scale(pygame.image.load('assets/ghost_img/blue.png'), (45, 45)),
+#    'clyde': pygame.transform.scale(pygame.image.load('assets/ghost_img/orange.png'), (45, 45)),
+#    'spooked': pygame.transform.scale(pygame.image.load('assets/ghost_img/spooked.png'), (45, 45)),
+#    'dead': pygame.transform.scale(pygame.image.load('assets/ghost_img/dead.png'), (45, 45))
+#}
+
+    
 boards = [
     [6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
     [3, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 3],
@@ -81,31 +71,37 @@ boards = [
 ]
 
 def draw_board():
-    """Draws the entire game board using the 'boards' array and 'tiles' dictionary."""
-    for y, row in enumerate(boards):
-        for x, tile_code in enumerate(row):
-            color, extra = tiles[tile_code]
-            pygame.draw.rect(screen, color, (x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
-            if extra == 'dot':
-                pygame.draw.circle(screen, YELLOW, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2), 3)
-            elif extra == 'big_dot':
-                pygame.draw.circle(screen, YELLOW, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2), 6)
+    num1 = (HEIGHT - 50) // 32
+    num2 = WIDTH // 30
+
+    for i in range(len(level)):
+        for j in range(len(level[i])):
+            if level[i][j] == 1:
+                pygame.draw.circle(screen, 'white', (j * num2 + (0.5 * num2), i * num1 + (0.5 * num1)), 4)
+            if level[i][j] == 2:
+                pygame.draw.circle(screen, 'white', (j * num2 + (0.5 * num2), i * num1 + (0.5 * num1)), 10)
+            if level[i][j] == 3:
+                pygame.draw.line(screen, color, (j * num2 + (0.5 * num2), i * num1), (j * num2 + (0.5 * num2), i * num1 + num1), 3)
+
+            
+
+
 
 def main():
-    """Main game loop."""
-    game_over = False
+    global game_over
     while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
 
-        screen.fill(BLACK)  # Fill the screen with black before drawing the board
-        draw_board()  # Draw the board on the screen
+        screen.fill(BLACK)
+        draw_board()
+        # Update game logic and draw other elements here
 
-        pygame.display.update()  # Update the display
-        timer.tick(FPS)  # Maintain the specified FPS
+        pygame.display.update()
+        timer.tick(FPS)
 
-    pygame.quit()  # Quit the game when the game loop ends
+    pygame.quit()
 
 if __name__ == "__main__":
     main()
