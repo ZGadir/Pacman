@@ -123,27 +123,7 @@ def draw_player():
 # Define the size of the collision box
 COLLISION_BOX_SIZE = 20
 
-class Pacman:
-    def __init__(self, x, y, color):
-        self.x = x
-        self.y = y
-        self.color = color
-        self.radius = 15
-        self.direction = 0  # 0 is right, 1 is left, 2 is up, 3 is down
-        self.score = 0
 
-    def draw(self):
-        pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
-
-    def move(self):
-        if self.direction == 0:
-            self.x += 1
-        elif self.direction == 1:
-            self.x -= 1
-        elif self.direction == 2:
-            self.y -= 1
-        elif self.direction == 3:
-            self.y += 1
 
 def check_collisions(self):
         num1 = ((HEIGHT - 50) // 32)
