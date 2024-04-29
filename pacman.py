@@ -4,7 +4,6 @@ import pygame
 import math
 import os
 
-
 # Constants
 WIDTH, HEIGHT = 900, 950
 BLACK = (0, 0, 0)
@@ -26,7 +25,7 @@ eaten_ghost = [False, False, False, False]
 moving = False
 ghost_speeds = [2, 2, 2, 2]
 startup_counter = 0
-counter = 0  # Initialize the counter here
+counter = 0  
 
 # Player and ghost position handling
 center_x = player_x + 23
@@ -45,39 +44,29 @@ for i in range(1, 5):
     image_path = os.path.join(player_images_dir, f'{i}.png')
     player_images.append(pygame.transform.scale(pygame.image.load(image_path), (45, 45)))
 
-
-def check_position(center_x, center_y, direction, level):
-    turns = [False, False, False, False]  # Represents [Right, Left, Up, Down]
+def check_position(centerx, centery, level, direction):
+    turns = [False, False, False, False]  # Right, Left, Up, Down
     num1 = (HEIGHT - 50) // 32
-    num2 = WIDTH // 30
-    num3 = 15  # Fudge factor for determining grid collision
+    num2 = (WIDTH // 30)
+    num3 = 15  # Fudge factor for collision detection
 
-    # Calculate grid positions based on center coordinates
-    grid_x = center_x // num2
-    grid_y = center_y // num1
+    # Calculate possible grid positions for collision detection
+    right_grid = ((centerx + num3) // num2, centery // num1)
+    left_grid = ((centerx - num3) // num2, centery // num1)
+    down_grid = (centerx // num2, (centery + num3) // num1)
+    up_grid = (centerx // num2, (centery - num3) // num1)
 
-    # Check right movement
-    if grid_x < len(level[0]) - 1:  # Ensure within horizontal bounds
-        if level[grid_y][grid_x + 1] < 3:  # Assuming that '3' represents a wall
-            turns[0] = True
-
-    # Check left movement
-    if grid_x > 0:
-        if level[grid_y][grid_x - 1] < 3:
-            turns[1] = True
-
-    # Check down movement
-    if grid_y < len(level) - 1:
-        if level[grid_y + 1][grid_x] < 3:
-            turns[3] = True
-
-    # Check up movement
-    if grid_y > 0:
-        if level[grid_y - 1][grid_x] < 3:
-            turns[2] = True
+    # Check collisions for each direction if within grid bounds
+    if right_grid[0] < len(level[0]):
+        turns[0] = level[right_grid[1]][right_grid[0]] < 3
+    if left_grid[0] >= 0:
+        turns[1] = level[left_grid[1]][left_grid[0]] < 3
+    if down_grid[1] < len(level):
+        turns[3] = level[down_grid[1]][down_grid[0]] < 3
+    if up_grid[1] >= 0:
+        turns[2] = level[up_grid[1]][up_grid[0]] < 3
 
     return turns
-
 
 
 boards = [
@@ -223,24 +212,46 @@ if moving:
         player_y = new_player_y
 
 
+def is_collision(new_player_x, new_player_y):
+    center_x = new_player_x + 23
+    center_y = new_player_y + 24
+    turns = check_position(center_x, center_y)
+    if direction == 0 and not turns[0]:
+        return True
+    elif direction == 1 and not turns[1]:
+        return True
+    elif direction == 2 and not turns[2]:
+        return True
+    elif direction == 3 and not turns[3]:
+        return True
+    return False
+
 # Main game loop
 run = True
 while run:
-    timer.tick(FPS)  # Use FPS instead of fps
-    screen.fill(BLACK)  # Use BLACK instead of black
+    timer.tick(FPS)  
+    screen.fill(BLACK)  
     draw_board()
     
 
     # Movement
     if moving:
+        new_player_x = player_x
+        new_player_y = player_y
+        
         if direction == 0:
-            player_x += player_speed
+            new_player_x += player_speed
         elif direction == 1:
-            player_x -= player_speed
+            new_player_x -= player_speed
         elif direction == 2:
-            player_y -= player_speed
+            new_player_y -= player_speed
         elif direction == 3:
-            player_y += player_speed
+            new_player_y += player_speed
+        
+        # Check if the new position is valid (no collision)
+        if not is_collision(new_player_x, new_player_y):
+            player_x = new_player_x
+            player_y = new_player_y
 
     draw_player()
     if counter < 19:
@@ -277,8 +288,8 @@ while run:
             if event.key == pygame.K_DOWN:
                 direction = 3
     # Refresh the display
-    pygame.display.flip()  # You can also use pygame.display.update()
+    pygame.display.flip()  
 
 # Quit the game
 pygame.quit()   
-sys.exit()  # It's a good practice t
+sys.exit()
