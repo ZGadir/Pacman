@@ -14,7 +14,7 @@ PI = math.pi
 
 # Game state variables
 color = 'blue'
-player_x, player_y = 450, 660
+player_x, player_y = 450, 663
 score, lives, powerup = 0, 3, False
 game_over, game_won = False, False
 flicker = False
@@ -22,12 +22,10 @@ turns_allowed = [False, False, False, False]
 direction = 0
 player_speed = 2
 eaten_ghost = [False, False, False, False]
-moving = True
+moving = False
 ghost_speeds = [2, 2, 2, 2]
 startup_counter = 0
 counter = 0  
-buffered_direction = None  # Direction buffered for cornering  
-
 
 # Player and ghost position handling
 center_x = player_x + 23
@@ -47,58 +45,29 @@ for i in range(1, 5):
     player_images.append(pygame.transform.scale(pygame.image.load(image_path), (35, 35)))
 
 
-# Define functions
-def check_position(centerx, centery):
-    num1, num2, num3 = (HEIGHT - 50) // 32, WIDTH // 30, 15
-    grid_positions = {
-        'right': ((centerx + num3) // num2, centery // num1),
-        'left': ((centerx - num3) // num2, centery // num1),
-        'down': (centerx // num2, (centery + num3) // num1),
-        'up': (centerx // num2, (centery - num3) // num1)
-    }
-    turns = {}
-    for dir, (x, y) in grid_positions.items():
-        if 0 <= x < len(level[0]) and 0 <= y < len(level):
-            turns[dir] = level[y][x] < 3
-    return [turns.get('right', False), turns.get('left', False), turns.get('up', False), turns.get('down', False)]
+def check_position(centerx, centery, level, direction):
+    turns = [False, False, False, False]  # Right, Left, Up, Down
+    num1 = (HEIGHT - 50) // 32
+    num2 = (WIDTH // 30)
+    num3 = 15  # Fudge factor for collision detection
 
-def process_input():
-    global player_x, player_y, direction, buffered_direction
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_RIGHT]:
-        buffered_direction = 0
-    elif keys[pygame.K_LEFT]:
-        buffered_direction = 1
-    elif keys[pygame.K_UP]:
-        buffered_direction = 2
-    elif keys[pygame.K_DOWN]:
-        buffered_direction = 3
+    # Calculate possible grid positions for collision detection
+    right_grid = ((centerx + num3) // num2, centery // num1)
+    left_grid = ((centerx - num3) // num2, centery // num1)
+    down_grid = (centerx // num2, (centery + num3) // num1)
+    up_grid = (centerx // num2, (centery - num3) // num1)
 
-    # Check the current turns available based on the player's current position
-    turns = check_position(player_x, player_y, level)
+    # Check collisions for each direction if within grid bounds
+    if right_grid[0] < len(level[0]):
+        turns[0] = level[right_grid[1]][right_grid[0]] < 3
+    if left_grid[0] >= 0:
+        turns[1] = level[left_grid[1]][left_grid[0]] < 3
+    if down_grid[1] < len(level):
+        turns[3] = level[down_grid[1]][down_grid[0]] < 3
+    if up_grid[1] >= 0:
+        turns[2] = level[up_grid[1]][up_grid[0]] < 3
 
-    # If the buffered direction is immediately valid, update the direction
-    if buffered_direction is not None and turns[buffered_direction]:
-        direction = buffered_direction
-
-    # Based on the current direction, calculate next potential position
-    next_x = player_x + (player_speed if direction == 0 else -player_speed if direction == 1 else 0)
-    next_y = player_y + (player_speed if direction == 3 else -player_speed if direction == 2 else 0)
-
-    # Check if the move is valid before updating the player's position
-    if (direction == 0 and turns[0]) or (direction == 1 and turns[1]) or \
-       (direction == 2 and turns[2]) or (direction == 3 and turns[3]):
-        player_x = next_x
-        player_y = next_y
-
-# Assuming the level data is stored as follows, where '1' represents walls
-def is_valid_move(x, y):
-    return level[y][x] != 1
-
-def is_collision(new_player_x, new_player_y):
-    center_x, center_y = new_player_x + 23, new_player_y + 24
-    turns = check_position(center_x, center_y)
-    return not turns[direction]
+    return turns
 
 
 boards = [
@@ -252,7 +221,6 @@ if moving:
         player_y = new_player_y
 
 
-# Define functions first
 def is_collision(new_player_x, new_player_y):
     center_x = new_player_x + 23
     center_y = new_player_y + 24
@@ -267,34 +235,33 @@ def is_collision(new_player_x, new_player_y):
         return True
     return False
 
-    
 # Main game loop
-timer.tick(FPS)  
-screen.fill(BLACK)  
-draw_board()
-center_x = player_x + 23
-center_y = player_y + 24
 run = True
 while run:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT: direction = 0
-            elif event.key == pygame.K_LEFT: direction = 1
-            elif event.key == pygame.K_UP: direction = 2
-            elif event.key == pygame.K_DOWN: direction = 3
+    timer.tick(FPS)  
+    screen.fill(BLACK)  
+    draw_board()
+    center_x = player_x + 23
+    center_y = player_y + 24
 
+    # Movement
     if moving:
-        new_player_x, new_player_y = player_x, player_y
-        if direction == 0: new_player_x += player_speed
-        elif direction == 1: new_player_x -= player_speed
-        elif direction == 2: new_player_y -= player_speed
-        elif direction == 3: new_player_y += player_speed
-
+        new_player_x = player_x
+        new_player_y = player_y
+        
+        if direction == 0:
+            new_player_x += player_speed
+        elif direction == 1:
+            new_player_x -= player_speed
+        elif direction == 2:
+            new_player_y -= player_speed
+        elif direction == 3:
+            new_player_y += player_speed
+        
+        # Check if the new position is valid (no collision)
         if not is_collision(new_player_x, new_player_y):
-            player_x, player_y = new_player_x, new_player_y
-
+            player_x = new_player_x
+            player_y = new_player_y
 
     draw_player()
     if counter < 19:
@@ -316,6 +283,20 @@ while run:
     else:
         moving = True
 
+    # Event handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                direction = 0
+            if event.key == pygame.K_LEFT:
+                direction = 1
+            if event.key == pygame.K_UP:
+                direction = 2
+            if event.key == pygame.K_DOWN:
+                direction = 3
     # Refresh the display
     pygame.display.flip()  
 
