@@ -38,58 +38,34 @@ timer = pygame.time.Clock()
 font = pygame.font.Font('freesansbold.ttf', 20)
 
 # Load player images
-
 player_images_dir = os.path.join('C:\\Users\\User\\Desktop\\pacman\\assets\\player_images')
 player_images = []
 for i in range(1, 5):
     image_path = os.path.join(player_images_dir, f'{i}.png')
     player_images.append(pygame.transform.scale(pygame.image.load(image_path), (35, 35)))
 
-def check_position(centerx, centery):
-    turns = [False, False, False, False]
+
+def check_position(centerx, centery, level, direction):
+    turns = [False, False, False, False]  # Right, Left, Up, Down
     num1 = (HEIGHT - 50) // 32
     num2 = (WIDTH // 30)
-    num3 = 15
-    # check collisions based on center x and center y of player +/- fudge number
-    if centerx // 30 < 29:
-        if direction == 0:
-            if level[centery // num1][(centerx - num3) // num2] < 3:
-                turns[1] = True
-        if direction == 1:
-            if level[centery // num1][(centerx + num3) // num2] < 3:
-                turns[0] = True
-        if direction == 2:
-            if level[(centery + num3) // num1][centerx // num2] < 3:
-                turns[3] = True
-        if direction == 3:
-            if level[(centery - num3) // num1][centerx // num2] < 3:
-                turns[2] = True
+    num3 = 15  # Fudge factor for collision detection
 
-        if direction == 2 or direction == 3:
-            if 12 <= centerx % num2 <= 18:
-                if level[(centery + num3) // num1][centerx // num2] < 3:
-                    turns[3] = True
-                if level[(centery - num3) // num1][centerx // num2] < 3:
-                    turns[2] = True
-            if 12 <= centery % num1 <= 18:
-                if level[centery // num1][(centerx - num2) // num2] < 3:
-                    turns[1] = True
-                if level[centery // num1][(centerx + num2) // num2] < 3:
-                    turns[0] = True
-        if direction == 0 or direction == 1:
-            if 12 <= centerx % num2 <= 18:
-                if level[(centery + num1) // num1][centerx // num2] < 3:
-                    turns[3] = True
-                if level[(centery - num1) // num1][centerx // num2] < 3:
-                    turns[2] = True
-            if 12 <= centery % num1 <= 18:
-                if level[centery // num1][(centerx - num3) // num2] < 3:
-                    turns[1] = True
-                if level[centery // num1][(centerx + num3) // num2] < 3:
-                    turns[0] = True
-    else:
-        turns[0] = True
-        turns[1] = True
+    # Calculate possible grid positions for collision detection
+    right_grid = ((centerx + num3) // num2, centery // num1)
+    left_grid = ((centerx - num3) // num2, centery // num1)
+    down_grid = (centerx // num2, (centery + num3) // num1)
+    up_grid = (centerx // num2, (centery - num3) // num1)
+
+    # Check collisions for each direction if within grid bounds
+    if right_grid[0] < len(level[0]):
+        turns[0] = level[right_grid[1]][right_grid[0]] < 3
+    if left_grid[0] >= 0:
+        turns[1] = level[left_grid[1]][left_grid[0]] < 3
+    if down_grid[1] < len(level):
+        turns[3] = level[down_grid[1]][down_grid[0]] < 3
+    if up_grid[1] >= 0:
+        turns[2] = level[up_grid[1]][up_grid[0]] < 3
 
     return turns
 
@@ -164,6 +140,114 @@ def draw_board():
                 pygame.draw.line(screen, 'white', (j * num2, i * num1 + (0.5 * num1)),
                                  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
 
+
+def check_collisions(self):
+        # R, L, U, D
+        num1 = ((HEIGHT - 50) // 32)
+        num2 = (WIDTH // 30)
+        num3 = 15
+        self.turns = [False, False, False, False]
+        if 0 < self.center_x // 30 < 29:
+            if level[(self.center_y - num3) // num1][self.center_x // num2] == 9:
+                self.turns[2] = True
+            if level[self.center_y // num1][(self.center_x - num3) // num2] < 3 \
+                    or (level[self.center_y // num1][(self.center_x - num3) // num2] == 9 and (
+                    self.in_box or self.dead)):
+                self.turns[1] = True
+            if level[self.center_y // num1][(self.center_x + num3) // num2] < 3 \
+                    or (level[self.center_y // num1][(self.center_x + num3) // num2] == 9 and (
+                    self.in_box or self.dead)):
+                self.turns[0] = True
+            if level[(self.center_y + num3) // num1][self.center_x // num2] < 3 \
+                    or (level[(self.center_y + num3) // num1][self.center_x // num2] == 9 and (
+                    self.in_box or self.dead)):
+                self.turns[3] = True
+            if level[(self.center_y - num3) // num1][self.center_x // num2] < 3 \
+                    or (level[(self.center_y - num3) // num1][self.center_x // num2] == 9 and (
+                    self.in_box or self.dead)):
+                self.turns[2] = True
+
+            if self.direction == 2 or self.direction == 3:
+                if 12 <= self.center_x % num2 <= 18:
+                    if level[(self.center_y + num3) // num1][self.center_x // num2] < 3 \
+                            or (level[(self.center_y + num3) // num1][self.center_x // num2] == 9 and (
+                            self.in_box or self.dead)):
+                        self.turns[3] = True
+                    if level[(self.center_y - num3) // num1][self.center_x // num2] < 3 \
+                            or (level[(self.center_y - num3) // num1][self.center_x // num2] == 9 and (
+                            self.in_box or self.dead)):
+                        self.turns[2] = True
+                if 12 <= self.center_y % num1 <= 18:
+                    if level[self.center_y // num1][(self.center_x - num2) // num2] < 3 \
+                            or (level[self.center_y // num1][(self.center_x - num2) // num2] == 9 and (
+                            self.in_box or self.dead)):
+                        self.turns[1] = True
+                    if level[self.center_y // num1][(self.center_x + num2) // num2] < 3 \
+                            or (level[self.center_y // num1][(self.center_x + num2) // num2] == 9 and (
+                            self.in_box or self.dead)):
+                        self.turns[0] = True
+
+            if self.direction == 0 or self.direction == 1:
+                if 12 <= self.center_x % num2 <= 18:
+                    if level[(self.center_y + num3) // num1][self.center_x // num2] < 3 \
+                            or (level[(self.center_y + num3) // num1][self.center_x // num2] == 9 and (
+                            self.in_box or self.dead)):
+                        self.turns[3] = True
+                    if level[(self.center_y - num3) // num1][self.center_x // num2] < 3 \
+                            or (level[(self.center_y - num3) // num1][self.center_x // num2] == 9 and (
+                            self.in_box or self.dead)):
+                        self.turns[2] = True
+                if 12 <= self.center_y % num1 <= 18:
+                    if level[self.center_y // num1][(self.center_x - num3) // num2] < 3 \
+                            or (level[self.center_y // num1][(self.center_x - num3) // num2] == 9 and (
+                            self.in_box or self.dead)):
+                        self.turns[1] = True
+                    if level[self.center_y // num1][(self.center_x + num3) // num2] < 3 \
+                            or (level[self.center_y // num1][(self.center_x + num3) // num2] == 9 and (
+                            self.in_box or self.dead)):
+                        self.turns[0] = True
+        else:
+            self.turns[0] = True
+            self.turns[1] = True
+        if 350 < self.x_pos < 550 and 370 < self.y_pos < 480:
+            self.in_box = True
+        else:
+            self.in_box = False
+        return self.turns, self.in_box
+
+def draw_misc():
+    score_text = font.render(f'Score: {score}', True, 'white')
+    screen.blit(score_text, (10, 920))
+    if powerup:
+        pygame.draw.circle(screen, 'blue', (140, 930), 15)
+    for i in range(lives):
+        screen.blit(pygame.transform.scale(player_images[0], (30, 30)), (650 + i * 40, 915))
+    if game_over:
+        pygame.draw.rect(screen, 'white', [50, 200, 800, 300],0, 10)
+        pygame.draw.rect(screen, 'dark gray', [70, 220, 760, 260], 0, 10)
+        gameover_text = font.render('Game over! Space bar to restart!', True, 'red')
+        screen.blit(gameover_text, (100, 300))
+    if game_won:
+        pygame.draw.rect(screen, 'white', [50, 200, 800, 300],0, 10)
+        pygame.draw.rect(screen, 'dark gray', [70, 220, 760, 260], 0, 10)
+        gameover_text = font.render('Victory! Space bar to restart!', True, 'green')
+        screen.blit(gameover_text, (100, 300))
+
+def check_collisions(scor, power, power_count, eaten_ghosts):
+    num1 = (HEIGHT - 50) // 32
+    num2 = WIDTH // 30
+    if 0 < player_x < 870:
+        if level[center_y // num1][center_x // num2] == 1:
+            level[center_y // num1][center_x // num2] = 0
+            scor += 10
+        if level[center_y // num1][center_x // num2] == 2:
+            level[center_y // num1][center_x // num2] = 0
+            scor += 50
+            power = True
+            power_count = 0
+            eaten_ghosts = [False, False, False, False]
+    return scor, power, power_count, eaten_ghosts
+
 def draw_player():
     # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
     if direction == 0:
@@ -225,7 +309,8 @@ def check_position(centerx, centery):
 
 # Modify the movement code to include collision detection
 if moving:
-    player_x, player_y = move_player(player_x, player_y)
+    new_player_x = player_x
+    new_player_y = player_y
     
     if direction == 0:
         new_player_x += player_speed
