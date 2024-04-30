@@ -44,6 +44,7 @@ for i in range(1, 5):
     image_path = os.path.join(player_images_dir, f'{i}.png')
     player_images.append(pygame.transform.scale(pygame.image.load(image_path), (35, 35)))
 
+
 def check_position(centerx, centery, level, direction):
     turns = [False, False, False, False]  # Right, Left, Up, Down
     num1 = (HEIGHT - 50) // 32
@@ -68,6 +69,7 @@ def check_position(centerx, centery, level, direction):
 
     return turns
 
+
 boards = [
 [6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
 [3, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 3],
@@ -82,8 +84,8 @@ boards = [
 [3, 7, 4, 4, 4, 4, 5, 1, 3, 7, 4, 4, 5, 0, 3, 3, 0, 6, 4, 4, 8, 3, 1, 6, 4, 4, 4, 4, 8, 3],
 [3, 0, 0, 0, 0, 0, 3, 1, 3, 6, 4, 4, 8, 0, 7, 8, 0, 7, 4, 4, 5, 3, 1, 3, 0, 0, 0, 0, 0, 3],
 [3, 0, 0, 0, 0, 0, 3, 1, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 1, 3, 0, 0, 0, 0, 0, 3],
-[8, 0, 0, 0, 0, 0, 3, 1, 3,3, 0, 6, 4, 4, 4, 4, 4, 4, 5, 0, 3, 3, 1, 3, 0, 0, 0, 0, 0, 7],
-[4, 4, 4, 4, 4, 4, 5, 1, 6, 5, 0, 3, 0, 0, 0, 0, 0, 0, 3, 0, 6, 5, 1, 6, 4, 4, 4, 4, 4, 4],
+[8, 0, 0, 0, 0, 0, 3, 1, 3, 3, 0, 6, 4, 4, 9, 9, 4, 4, 5, 0, 3, 3, 1, 3, 0, 0, 0, 0, 0, 7],
+[4, 4, 4, 4, 4, 4, 8, 1, 7, 8, 0, 3, 0, 0, 0, 0, 0, 0, 3, 0, 7, 8, 1, 7, 4, 4, 4, 4, 4, 4],
 [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
 [4, 4, 4, 4, 4, 4, 5, 1, 6, 5, 0, 3, 0, 0, 0, 0, 0, 0, 3, 0, 6, 5, 1, 6, 4, 4, 4, 4, 4, 4],
 [5, 0, 0, 0, 0, 0, 3, 1, 3, 3, 0, 7, 4, 4, 4, 4, 4, 4, 8, 0, 3, 3, 1, 3, 0, 0, 0, 0, 0, 6],
@@ -91,13 +93,13 @@ boards = [
 [3, 0, 0, 0, 0, 0, 3, 1, 3, 3, 0, 6, 4, 4, 4, 4, 4, 4, 5, 0, 3, 3, 1, 3, 0, 0, 0, 0, 0, 3],
 [3, 6, 4, 4, 4, 4, 8, 1, 7, 8, 0, 7, 4, 4, 5, 6, 4, 4, 8, 0, 7, 8, 1, 7, 4, 4, 4, 4, 5, 3],
 [3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3],
-[3, 3, 1, 6, 4, 4, 4, 4, 4, 4, 4, 4, 5, 1, 3, 3, 1, 6, 4, 4, 4, 4, 4, 4, 4, 4, 5, 1, 3, 3],
-[3, 3, 1, 7, 4, 4, 4, 4, 4, 4, 4, 4, 8, 1, 7, 8, 1, 7, 4, 4, 4, 4, 4, 4, 4, 4, 8, 1, 3, 3],
-[3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3],
-[3, 7, 4, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 3],
-[3, 6, 4, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 3],
-[3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3],
-[3, 3, 1, 6, 4, 4, 4, 4, 4, 4, 4, 4, 5, 1, 3, 3, 1, 6, 4, 4, 4, 4, 4, 4, 4, 4, 5, 1, 3, 3],
+[3, 3, 1, 6, 4, 4, 5, 1, 6, 4, 4, 4, 5, 1, 3, 3, 1, 6, 4, 4, 4, 5, 1, 6, 4, 4, 5, 1, 3, 3],
+[3, 3, 1, 7, 4, 5, 3, 1, 7, 4, 4, 4, 8, 1, 7, 8, 1, 7, 4, 4, 4, 8, 1, 3, 6, 4, 8, 1, 3, 3],
+[3, 3, 2, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 2, 3, 3],
+[3, 7, 4, 5, 1, 3, 3, 1, 6, 5, 1, 6, 4, 4, 4, 4, 4, 4, 5, 1, 6, 5, 1, 3, 3, 1, 6, 4, 8, 3],
+[3, 6, 4, 8, 1, 7, 8, 1, 3, 3, 1, 7, 4, 4, 5, 6, 4, 4, 8, 1, 3, 3, 1, 7, 8, 1, 7, 4, 5, 3],
+[3, 3, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 3, 3],
+[3, 3, 1, 6, 4, 4, 4, 4, 8, 7, 4, 4, 5, 1, 3, 3, 1, 6, 4, 4, 8, 7, 4, 4, 4, 4, 5, 1, 3, 3],
 [3, 3, 1, 7, 4, 4, 4, 4, 4, 4, 4, 4, 8, 1, 7, 8, 1, 7, 4, 4, 4, 4, 4, 4, 4, 4, 8, 1, 3, 3],
 [3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3],
 [3, 7, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8, 3],
@@ -139,6 +141,7 @@ def draw_board():
                                  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
     
 
+    
 def draw_player():
     # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
     if direction == 0:
@@ -198,6 +201,26 @@ def check_position(centerx, centery):
 
     return turns
 
+# Modify the movement code to include collision detection
+if moving:
+    new_player_x = player_x
+    new_player_y = player_y
+    
+    if direction == 0:
+        new_player_x += player_speed
+    elif direction == 1:
+        new_player_x -= player_speed
+    elif direction == 2:
+        new_player_y -= player_speed
+    elif direction == 3:
+        new_player_y += player_speed
+        
+    # Check if the new position is valid (no collision)
+    if not is_collision(new_player_x, new_player_y):
+        player_x = new_player_x
+        player_y = new_player_y
+
+
 def is_collision(new_player_x, new_player_y):
     center_x = new_player_x + 23
     center_y = new_player_y + 24
@@ -225,47 +248,16 @@ while run:
     if moving:
         new_player_x = player_x
         new_player_y = player_y
-
-        # Check for cornering
-        turns = check_position(center_x, center_y)
-
-        if direction == 0:  # Right
-            if turns[0]:  # Can turn right
-                new_player_x += player_speed
-            elif turns[2] and new_player_y - player_speed >= 0:  # Can turn up
-                direction = 2
-                new_player_y -= player_speed
-            elif turns[3] and new_player_y + player_speed < HEIGHT - 50:  # Can turn down
-                direction = 3
-                new_player_y += player_speed
-        elif direction == 1:  # Left
-            if turns[1]:  # Can turn left
-                new_player_x -= player_speed
-            elif turns[2] and new_player_y - player_speed >= 0:  # Can turn up
-                direction = 2
-                new_player_y -= player_speed
-            elif turns[3] and new_player_y + player_speed < HEIGHT - 50:  # Can turn down
-                direction = 3
-                new_player_y += player_speed
-        elif direction == 2:  # Up
-            if turns[2]:  # Can turn up
-                new_player_y -= player_speed
-            elif turns[0] and new_player_x + player_speed < WIDTH - 30:  # Can turn right
-                direction = 0
-                new_player_x += player_speed
-            elif turns[1] and new_player_x - player_speed >= 0:  # Can turn left
-                direction = 1
-                new_player_x -= player_speed
-        elif direction == 3:  # Down
-            if turns[3]:  # Can turn down
-                new_player_y += player_speed
-            elif turns[0] and new_player_x + player_speed < WIDTH - 30:  # Can turn right
-                direction = 0
-                new_player_x += player_speed
-            elif turns[1] and new_player_x - player_speed >= 0:  # Can turn left
-                direction = 1
-                new_player_x -= player_speed
-
+        
+        if direction == 0:
+            new_player_x += player_speed
+        elif direction == 1:
+            new_player_x -= player_speed
+        elif direction == 2:
+            new_player_y -= player_speed
+        elif direction == 3:
+            new_player_y += player_speed
+        
         # Check if the new position is valid (no collision)
         if not is_collision(new_player_x, new_player_y):
             player_x = new_player_x
