@@ -22,13 +22,15 @@ turns_allowed = [False, False, False, False]
 direction = 0
 player_speed = 2
 eaten_ghost = [False, False, False, False]
-moving = True
+moving = False
 ghost_speeds = [2, 2, 2, 2]
 startup_counter = 0
 counter = 0  
-direction_command = 0  # Direction intended by the player
+direction_command = 0
+blinky_speed = 1
 
-# Player position handling
+
+# Player and ghost position handling
 center_x = player_x + 23
 center_y = player_y + 24
 
@@ -45,52 +47,67 @@ for i in range(1, 5):
     image_path = os.path.join(player_images_dir, f'{i}.png')
     player_images.append(pygame.transform.scale(pygame.image.load(image_path), (35, 35)))
 
-def check_position(centerx, centery, level):
-    num1, num2, num3 = (HEIGHT - 50) // 32, WIDTH // 30, 15
-    grid_positions = {
-        'right': ((centerx + num3) // num2, centery // num1),
-        'left': ((centerx - num3) // num2, centery // num1),
-        'down': (centerx // num2, (centery + num3) // num1),
-        'up': (centerx // num2, (centery - num3) // num1)
-    }
-    turns = {}
-    for dir, (x, y) in grid_positions.items():
-        if 0 <= x < len(level[0]) and 0 <= y < len(level):
-            turns[dir] = level[y][x] < 3
-    return [turns.get('right', False), turns.get('left', False), turns.get('up', False), turns.get('down', False)]
+# Load ghost images
+ghost_images_dir = os.path.join('C:\\Users\\User\\Desktop\\pacman\\assets\\ghost_images')
+blinky_img = pygame.transform.scale(pygame.image.load(os.path.join(ghost_images_dir, 'red.png')), (45, 45))
+pinky_img = pygame.transform.scale(pygame.image.load(os.path.join(ghost_images_dir, 'pink.png')), (45, 45))
+inky_img = pygame.transform.scale(pygame.image.load(os.path.join(ghost_images_dir, 'blue.png')), (45, 45))
+clyde_img = pygame.transform.scale(pygame.image.load(os.path.join(ghost_images_dir, 'orange.png')), (45, 45))
+# Ghost starting position and properties
+blinky_x, blinky_y = 400, 300
+blinky_direction = 0
 
-def process_input():
-    global direction, direction_command
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_RIGHT]:
-        direction_command = 0
-    elif keys[pygame.K_LEFT]:
-        direction_command = 1
-    elif keys[pygame.K_UP]:
-        direction_command = 2
-    elif keys[pygame.K_DOWN]:
-        direction_command = 3
+# Ghost class
+class Ghost:
+    def __init__(self, x, y, img, speed):
+        self.x = x
+        self.y = y
+        self.img = img
+        self.speed = speed
 
-    turns = check_position(player_x, player_y, level)
+    def move(self, direction):
+        if direction == 0:  # Right
+            self.x += self.speed
+        elif direction == 1:  # Left
+            self.x -= self.speed
+        elif direction == 2:  # Up
+            self.y -= self.speed
+        elif direction == 3:  # Down
+            self.y += self.speed
 
-    if turns[direction_command]:
-        direction = direction_command
+        # Boundary check
+        if self.x > WIDTH:
+            self.x = 0
+        elif self.x < 0:
+            self.x = WIDTH
+        if self.y > HEIGHT:
+            self.y = 0
+        elif self.y < 0:
+            self.y = HEIGHT
 
-def move_player():
-    global player_x, player_y
-    dx, dy = 0, 0
-    if direction == 0:
-        dx = player_speed
-    elif direction == 1:
-        dx = -player_speed
-    elif direction == 2:
-        dy = -player_speed
-    elif direction == 3:
-        dy = player_speed
+    def draw(self):
+        screen.blit(self.img, (self.x, self.y))
 
-    new_x, new_y = player_x + dx, player_y + dy
-    if check_position(new_x + 23, new_y + 24, level)[direction]:
-        player_x, player_y = new_x, new_y
+
+    def is_collision(self, x, y, level):
+        # Assuming 'level' is a grid or array of tiles where 1 represents walls
+        tile_x = x // TILE_SIZE  # TILE_SIZE is the size of your tiles in the level
+        tile_y = y // TILE_SIZE
+        if level[tile_y][tile_x] == 1:
+            return True
+        return False
+
+# Constants for the ghosts' starting positions inside the box
+blinky_x, blinky_y = 405, 330
+pinky_x, pinky_y = 450, 330
+inky_x, inky_y = 495, 330
+clyde_x, clyde_y = 540, 330
+
+# Instantiate the ghosts using the ghost_speeds array
+blinky = Ghost(blinky_x, blinky_y, blinky_img, ghost_speeds[0])
+pinky = Ghost(pinky_x, pinky_y, pinky_img, ghost_speeds[1])
+inky = Ghost(inky_x, inky_y, inky_img, ghost_speeds[2])
+clyde = Ghost(clyde_x, clyde_y, clyde_img, ghost_speeds[3])
 
 boards = [
 [6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
@@ -162,26 +179,37 @@ def draw_board():
                 pygame.draw.line(screen, 'white', (j * num2, i * num1 + (0.5 * num1)),
                                  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
     
-def handle_input():
-    global direction
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_RIGHT]:
-        direction = 0
-    elif keys[pygame.K_LEFT]:
-        direction = 1
-    elif keys[pygame.K_UP]:
-        direction = 2
-    elif keys[pygame.K_DOWN]:
-        direction = 3
-
+# Function to move the player and update the ghost's position
 def move_player():
     global player_x, player_y
-    dx, dy = [player_speed * i for i in [1, -1, 0, 0]], [player_speed * i for i in [0, 0, 1, -1]]
-    new_x, new_y = player_x + dx[direction], player_y + dy[direction]
-    if check_position(new_x + 23, new_y + 24)[direction]:
+    dx, dy = 0, 0
+    if direction == 0:
+        dx = player_speed
+    elif direction == 1:
+        dx = -player_speed
+    elif direction == 2:
+        dy = -player_speed
+    elif direction == 3:
+        dy = player_speed
+
+    new_x, new_y = player_x + dx, player_y + dy
+    if check_position(new_x + 23, new_y + 24, level)[direction]:
         player_x, player_y = new_x, new_y
+    
+    # After player moves, update ghost positions
+    blinky.move()
 
-
+# Function to draw elements on the screen including the ghost
+def draw_game():
+    screen.fill(BLACK)  # Assuming the background color is set to black
+    draw_board()
+    draw_player()
+    
+    # Draw ghosts after the player
+    blinky.draw()
+    
+    pygame.display.flip()  # Update the screen with what we've drawn
+    
 def draw_player():
     # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
     if direction == 0:
@@ -198,21 +226,6 @@ def check_position(centerx, centery):
     num1 = (HEIGHT - 50) // 32
     num2 = (WIDTH // 30)
     num3 = 15
-
-def is_collision(new_player_x, new_player_y, level):
-    center_x = new_player_x + 23
-    center_y = new_player_y + 24
-    turns = check_position(center_x, center_y, level)
-    if direction == 0 and not turns[0]:
-        return True
-    elif direction == 1 and not turns[1]:
-        return True
-    elif direction == 2 and not turns[2]:
-        return True
-    elif direction == 3 and not turns[3]:
-        return True
-    return False
-
     # check collisions based on center x and center y of player +/- fudge number
     if centerx // 30 < 29:
         if direction == 0:
@@ -271,9 +284,24 @@ if moving:
         new_player_y += player_speed
         
     # Check if the new position is valid (no collision)
-    if not is_collision(center_x, center_y, level):
+    if not is_collision(new_player_x, new_player_y):
         player_x = new_player_x
         player_y = new_player_y
+
+
+def is_collision(new_player_x, new_player_y):
+    center_x = new_player_x + 23
+    center_y = new_player_y + 24
+    turns = check_position(center_x, center_y)
+    if direction == 0 and not turns[0]:
+        return True
+    elif direction == 1 and not turns[1]:
+        return True
+    elif direction == 2 and not turns[2]:
+        return True
+    elif direction == 3 and not turns[3]:
+        return True
+    return False
 
     if event.type == pygame.KEYUP:
         if event.key == pygame.K_RIGHT and direction_command == 0:
@@ -283,81 +311,96 @@ if moving:
         if event.key == pygame.K_UP and direction_command == 2:
             direction_command = direction
         if event.key == pygame.K_DOWN and direction_command == 3:
-            direction_command = direction
-
+                direction_command = direction
 
 # Main game loop
-running = True
-while running:
-    timer.tick(FPS)
+run = True
+while run:
+    timer.tick(FPS)  # Maintain the game's framerate
+    screen.fill(BLACK)  # Clear the screen each frame
+    draw_board()  # Draw the game board or background
+
+    # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
-    handle_input()
-    move_player()
-    draw_game()
+            run = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                direction = 0
+            elif event.key == pygame.K_LEFT:
+                direction = 1
+            elif event.key == pygame.K_UP:
+                direction = 2
+            elif event.key == pygame.K_DOWN:
+                direction = 3
 
-
-
-    # Movement
+    # Player movement
     if moving:
         new_player_x = player_x
         new_player_y = player_y
-        
-        if direction == 0:
+
+        # Determine new position based on direction
+        if direction == 0:  # Right
             new_player_x += player_speed
-        elif direction == 1:
+        elif direction == 1:  # Left
             new_player_x -= player_speed
-        elif direction == 2:
+        elif direction == 2:  # Up
             new_player_y -= player_speed
-        elif direction == 3:
+        elif direction == 3:  # Down
             new_player_y += player_speed
-        
-        # Check if the new position is valid (no collision)
+
+        # Collision detection for player
         if not is_collision(new_player_x, new_player_y):
             player_x = new_player_x
             player_y = new_player_y
 
+    # Move and draw ghosts
+    blinky.move(level)
+    blinky.draw()
+    pinky.move(level)
+    pinky.draw()
+    inky.move(level)
+    inky.draw()
+    clyde.move(level)
+    clyde.draw()
+
+    # Check collision with each ghost
+    for ghost in [blinky, pinky, inky, clyde]:
+        if abs(player_x - ghost.x) < 20 and abs(player_y - ghost.y) < 20:
+            if powerup:
+                print("Ghost eaten!")  # Logic for when a ghost is eaten
+            else:
+                lives -= 1
+                print("Player loses a life!")  # Logic for when the player loses a life
+                if lives == 0:
+                    game_over = True
+                    print("Game Over!")  # Handle the game over state
+
+    # Draw the player
     draw_player()
-    if counter < 19:
-        counter += 1
-        if counter > 3:
-            flicker = False
-    else:
+
+    # Animation and power-up logic
+    counter += 1
+    if counter > 19:
         counter = 0
-        flicker = True
-    if powerup and power_counter < 600:
+        flicker = not flicker
+
+    if powerup:
         power_counter += 1
-    elif powerup and power_counter >= 600:
-        power_counter = 0
-        powerup = False
-        eaten_ghost = [False, False, False, False]
-    if startup_counter < 180 and not game_over and not game_won:
+        if power_counter >= 600:
+            power_counter = 0
+            powerup = False
+
+    # Startup logic to control initial player movement
+    if startup_counter < 180 and not (game_over or game_won):
         moving = False
         startup_counter += 1
     else:
         moving = True
 
-    # Event handling
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT:
-                direction = 0
-            if event.key == pygame.K_LEFT:
-                direction = 1
-            if event.key == pygame.K_UP:
-                direction = 2
-            if event.key == pygame.K_DOWN:
-                direction = 3
     # Refresh the display
-    pygame.display.flip()  
+    pygame.display.flip()
 
-
-    
-
-
-# Quit the game
-pygame.quit()   
+# Cleanup and exit
+pygame.quit()
 sys.exit()
