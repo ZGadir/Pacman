@@ -354,14 +354,11 @@ while run:
             player_x = new_player_x
             player_y = new_player_y
 
-    # Move and draw ghosts
-    blinky.move(level)
-    blinky.draw()
-    pinky.move(level)
-    pinky.draw()
-    inky.move(level)
-    inky.draw()
+
     clyde.move(level)
+    blinky.draw()
+    pinky.draw()
+    inky.draw()
     clyde.draw()
 
     # Check collision with each ghost
